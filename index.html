@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecureMetro — AI-Driven IoT Security for Railways</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="nav">
+    <div class="wrap nav-in">
+      <a href="#home" class="brand"><span class="dot"></span>SECURE·METRO·IoT</a>
+      <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#dashboard" class="auth-only hidden">Dashboard</a>
+        <a href="#alerts" class="auth-only hidden">Alerts</a>
+        <a href="#admin" class="admin-only hidden">Admin</a>
+        <span id="userBadge" class="badge blue hidden"></span>
+        <button id="loginBtn" class="btn small" onclick="location.hash='#login'">Login</button>
+        <button id="logoutBtn" class="btn ghost small hidden" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ HOME ============ -->
+  <section id="page-home" class="page">
+    <header class="hero wrap">
+      <div class="eyebrow">UPMRC Internship Project · B.Tech CSE</div>
+      <h1>AI-Driven System for <span>Securing IoT</span> in Railways</h1>
+      <p>A modern metro runs on thousands of connected devices — trains reporting speed and
+        vibration, track sensors watching temperature, signals and gates exchanging commands.
+        This platform watches them all, learns their normal behaviour, and raises the alarm the
+        moment something deviates.</p>
+      <div class="flex" style="margin-top:26px">
+        <button class="btn" onclick="location.hash = state.user ? '#dashboard' : '#login'">Open Live Dashboard</button>
+      </div>
+    </header>
+    <div class="wrap grid g3">
+      <div class="panel feature"><h3>Live Fleet Monitoring</h3><p>Trains, sensors, signals, cameras and fare gates stream telemetry in real time — speed, vibration, temperature, packet rates and latency.</p></div>
+      <div class="panel feature"><h3>AI Threat Detection</h3><p>An anomaly engine learns each device's baseline with rolling z-scores, plus railway rules for floods, spoofed telemetry and MitM-style latency.</p></div>
+      <div class="panel feature"><h3>Alerts &amp; Response</h3><p>Threats become severity-ranked alerts with plain explanations. Admins quarantine devices and every action is audit-logged.</p></div>
+    </div>
+    <footer class="site"><div class="wrap flex spread">
+      <span>Parth Arora · Shobhit Yadav · Shivam Yadav — B.Tech CSE</span>
+      <span>UPMRC · IT Department · AGM (IT) · 2026</span>
+    </div></footer>
+  </section>
+
+  <!-- ============ LOGIN ============ -->
+  <section id="page-login" class="page hidden">
+    <div class="wrap form"><div class="panel">
+      <div class="eyebrow">Operator Access</div>
+      <h2>Sign in</h2>
+      <label>Email</label><input id="loginEmail" type="email" value="admin@upmrc.local" />
+      <label>Password</label><input id="loginPass" type="password" value="admin123" />
+      <div id="loginError" class="error"></div>
+      <button class="btn wfull" onclick="login()">Sign in</button>
+      <p class="hint">Demo admin: <code>admin@upmrc.local</code> / <code>admin123</code><br/>
+        New here? <a href="#signup" style="color:var(--amber)">Create a viewer account</a></p>
+    </div></div>
+  </section>
+
+  <!-- ============ SIGNUP ============ -->
+  <section id="page-signup" class="page hidden">
+    <div class="wrap form"><div class="panel">
+      <div class="eyebrow">New Operator</div>
+      <h2>Create account</h2>
+      <label>Full name</label><input id="suName" />
+      <label>Email</label><input id="suEmail" type="email" />
+      <label>Password (min 6 chars)</label><input id="suPass" type="password" />
+      <div id="suError" class="error"></div>
+      <button class="btn wfull" onclick="signup()">Create account</button>
+      <p class="hint">Already registered? <a href="#login" style="color:var(--amber)">Sign in</a></p>
+    </div></div>
+  </section>
+
+  <!-- ============ DASHBOARD ============ -->
+  <section id="page-dashboard" class="page hidden">
+    <div class="wrap pad">
+      <div class="flex spread">
+        <div><div class="eyebrow">Operations Control Centre</div><h2 class="page-title">Live Network Dashboard</h2></div>
+        <span class="flex mono dim sm"><span class="live-dot"></span> LIVE · refresh 2.5s</span>
+      </div>
+      <div class="grid g4 section-gap">
+        <div class="panel stat"><div class="n blue-t" id="stDevices">—</div><div class="l">Devices tracked</div></div>
+        <div class="panel stat"><div class="n green-t" id="stOnline">—</div><div class="l">Online now</div></div>
+        <div class="panel stat"><div class="n red-t" id="stAlerts">—</div><div class="l">Open alerts</div></div>
+        <div class="panel stat"><div class="n amber-t" id="stRate">—</div><div class="l">Anomaly rate</div></div>
+      </div>
+      <div class="grid g2 section-gap">
+        <div class="panel"><h3>Packet rate per device <span class="mono dim sm">(pkts/s)</span></h3><canvas id="lineChart" height="130"></canvas></div>
+        <div class="panel"><h3>Alerts by severity</h3><canvas id="pieChart" height="130"></canvas></div>
+      </div>
+      <div class="panel section-gap">
+        <h3>Device fleet</h3>
+        <table><thead><tr><th>Device</th><th>Status</th><th>Latest reading</th><th>AI verdict</th></tr></thead>
+        <tbody id="deviceRows"></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ALERTS ============ -->
+  <section id="page-alerts" class="page hidden">
+    <div class="wrap pad">
+      <div class="eyebrow">Threat Feed</div>
+      <h2 class="page-title">Alerts &amp; Notifications</h2>
+      <p class="sub">Every anomaly the AI flags lands here. Acknowledge an alert once investigated.</p>
+      <div class="flex section-gap" id="alertFilters"></div>
+      <div id="alertList" class="section-gap"></div>
+    </div>
+  </section>
+
+  <!-- ============ ADMIN ============ -->
+  <section id="page-admin" class="page hidden">
+    <div class="wrap pad">
+      <div class="eyebrow">Administration</div>
+      <h2 class="page-title">Device Management &amp; Audit Logs</h2>
+      <div class="grid g2 section-gap">
+        <div class="panel">
+          <h3>Register a new device</h3>
+          <label>Device name</label><input id="devName" placeholder="e.g. Track Sensor TS-31" />
+          <label>Type</label>
+          <select id="devType"><option>train</option><option selected>sensor</option><option>signal</option><option>camera</option><option>gate</option></select>
+          <label>Location</label><input id="devLoc" placeholder="e.g. Munshipulia Viaduct" />
+          <button class="btn" style="margin-top:16px" onclick="addDevice()">Add device</button>
+        </div>
+        <div class="panel">
+          <h3>Fleet control</h3>
+          <table><thead><tr><th>Device</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead>
+          <tbody id="adminRows"></tbody></table>
+        </div>
+      </div>
+      <div class="panel section-gap">
+        <h3>Audit log <span class="mono dim sm">(newest first)</span></h3>
+        <table><thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Detail</th></tr></thead>
+        <tbody id="logRows"></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
