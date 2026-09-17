@@ -13,6 +13,10 @@ This project focuses on providing a **centralized security dashboard** through w
 The project was developed as part of my **UPMRC internship**, with a focus on applying web development concepts to a real-world railway/metro security scenario.
 
 ---
+🌐 Live Demo
+
+🚀 View Live Demo
+https://shivam33yadav.github.io/AI-Driven-System-for-Securing-IoT-in-Railways/
 
 ## 🎯 Objectives
 
